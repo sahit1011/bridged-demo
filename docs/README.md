@@ -22,17 +22,35 @@ This project implements a sophisticated **Natural Language to Pinecone Query Age
          └──────────────── Search Results ◀─────────────┘
 ```
 
+## 🎬 Quick Demo (For Recruiters)
+
+**Want to see everything in action? Run this single command:**
+
+```bash
+# Activate virtual environment and run comprehensive demo
+venv\Scripts\activate
+python test_comprehensive_demo.py
+```
+
+This will showcase all features including:
+- ✅ Boolean Logic (OR vs AND interpretation)
+- ✅ Real Pinecone database queries
+- ✅ Multiple date formats
+- ✅ Complex multi-parameter filtering
+- ✅ Error handling and fallbacks
+
 ## 🚀 Key Features
 
 ### ✅ **Implemented Components**
 
-1. **Multi-LLM Support**: Sequential fallback system with free-tier models
-2. **Robust Filtering**: Complete Pinecone operator support
-3. **Flexible Date Formats**: 3 different date field options
-4. **Smart Tag Search**: Individual hashtag matching with OR/AND logic
-5. **Web Interface**: Interactive Flask frontend for testing
-6. **Fallback Systems**: Rule-based extraction when LLMs fail
-7. **Real Data Integration**: Works with actual Pinecone index
+1. **Advanced Boolean Logic**: Natural language OR/AND interpretation
+2. **Multi-LLM Support**: Sequential fallback system with free-tier models
+3. **Robust Filtering**: Complete Pinecone operator support
+4. **Flexible Date Formats**: 3 different date field options
+5. **Smart Tag Search**: Individual hashtag matching with OR/AND logic
+6. **Web Interface**: Interactive Flask frontend for testing
+7. **Fallback Systems**: Rule-based extraction when LLMs fail
+8. **Real Data Integration**: Works with actual Pinecone index
 
 ### 🎨 **User Interface**
 
@@ -112,6 +130,16 @@ bridged_media_assignment/
 
 ## 🚀 Quick Start
 
+### **Option 1: Using Scripts (Recommended)**
+```bash
+# Using uv (fastest)
+scripts\run-with-uv.bat
+
+# Using poetry (most reliable)
+scripts\run-with-poetry.bat
+```
+
+### **Option 2: Manual Setup**
 1. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
@@ -124,15 +152,28 @@ bridged_media_assignment/
    OPENROUTER_API_KEY=your_key
    ```
 
-3. **Run Frontend**:
+3. **Run Individual Applications**:
    ```bash
-   python simple_frontend.py
+   # Activate virtual environment
+   venv\Scripts\activate
+
+   # Set PYTHONPATH (IMPORTANT!)
+   set PYTHONPATH=.
+
+   # Run FastAPI server
+   python apps/fastapi_app.py
+
+   # OR run Flask frontend
+   python apps/frontend.py
+
+   # OR run comprehensive demo
+   python test_comprehensive_demo.py
    ```
 
-4. **Access Web Interface**:
-   ```
-   http://localhost:5000
-   ```
+4. **Access Applications**:
+   - **FastAPI**: http://localhost:8000/docs
+   - **Flask**: http://localhost:5000
+   - **Try queries**: "posts about Rohit Sharma from 2025"
 
 ## 📚 Documentation Structure
 

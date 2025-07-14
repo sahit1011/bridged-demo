@@ -34,4 +34,4 @@ echo 📚 API docs at: http://localhost:8000/docs
 echo 🔍 Health check at: http://localhost:8000/health
 echo.
 
-python fastapi_app.py
+python apps/fastapi_app.py

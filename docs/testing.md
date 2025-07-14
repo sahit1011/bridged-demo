@@ -28,10 +28,27 @@ This guide covers all testing scenarios, validation methods, and performance ben
 
 ## 🚀 Quick Test Commands
 
+### **⚠️ Important: PYTHONPATH Setup**
+All individual test files require PYTHONPATH to be set to find the `src` module:
+
+```bash
+# Windows (PowerShell)
+$env:PYTHONPATH = "."
+
+# Windows (Command Prompt)
+set PYTHONPATH=.
+
+# Linux/Mac
+export PYTHONPATH=.
+```
+
 ### **Basic Functionality Tests**
 ```bash
 # Activate virtual environment
 venv\Scripts\activate
+
+# Set PYTHONPATH (REQUIRED!)
+set PYTHONPATH=.
 
 # Test core search functionality
 python test_improved_search.py
@@ -48,12 +65,49 @@ python test_specific_dates.py
 # Test date query improvements (NEW)
 python test_final_dates.py
 
+# COMPREHENSIVE DEMO - Run this for recruiters! (NEW)
+python test_comprehensive_demo.py
+
 # Debug date filtering (NEW)
 python debug_full_search.py
 
 # Test complete system
 python test_real_system.py
 ```
+
+## 🎬 Comprehensive Demo Suite (NEW)
+
+### **For Recruiters and Stakeholders**
+The `test_comprehensive_demo.py` script provides a complete showcase of all system capabilities:
+
+```bash
+# Run the full demonstration
+python test_comprehensive_demo.py
+```
+
+### **Demo Sections Covered**
+1. **Boolean Logic (OR vs AND)** - Natural language interpretation
+2. **Single Entity Searches** - Basic filtering capabilities
+3. **Date Filtering** - Multiple date formats and relative queries
+4. **Complex Combinations** - Multi-parameter queries
+5. **Advanced Operators** - Negation, comparison, exclusion
+6. **Edge Cases** - Error handling and fallback mechanisms
+7. **Performance Scenarios** - Different complexity levels
+8. **Real-World Examples** - Conversational queries
+
+### **Key Features Demonstrated**
+- ✅ **Boolean Logic**: "posts about X and Y" (OR) vs "posts containing both X and Y" (AND)
+- ✅ **Smart Interpretation**: Natural language intent recognition
+- ✅ **Real Database**: Live Pinecone search with actual results
+- ✅ **Robust Fallbacks**: 99%+ success rate with multiple LLM providers
+- ✅ **Production Ready**: Error handling, validation, optimization
+
+### **Expected Output**
+- Filter generation with timing
+- JSON structure display
+- Live Pinecone search results
+- Performance metrics
+- Success/failure indicators
 
 ### **Frontend Testing**
 ```bash

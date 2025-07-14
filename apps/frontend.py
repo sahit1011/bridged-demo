@@ -6,8 +6,8 @@ Demonstrates the Natural Language to Pinecone Query Agent
 from flask import Flask, render_template_string, request, jsonify
 import requests
 import json
-from simple_agent import SimpleNLAgent
-from simple_pinecone import SimplePineconeClient
+from src.agent import SimpleNLAgent
+from src.pinecone_client import SimplePineconeClient
 
 app = Flask(__name__)
 

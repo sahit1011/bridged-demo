@@ -112,17 +112,25 @@ SUPPORTED OPERATORS:
 - Arrays: $in (any of these values), $nin (none of these values)
 - Logic: $and (all conditions), $or (any condition)
 
-RULES:
+CRITICAL BOOLEAN LOGIC RULES:
+1. "posts about X and Y" = OR logic (posts related to EITHER X OR Y)
+2. "posts containing both X and Y" = AND logic (posts that have BOTH X AND Y)
+3. "posts related to X, Y" = OR logic (posts about any of these)
+4. "posts with X and also Y" = AND logic (posts that must have both)
+5. "posts about X or Y" = OR logic (explicitly stated)
+
+TAG FILTERING RULES:
 1. For author: use {{"author": {{"$eq": "Name"}}}} or {{"author": "Name"}}
 2. For dates: ALWAYS use publishedTimestamp with Unix timestamps:
    - {{"publishedTimestamp": {{"$gte": 1704067200}}}} for dates >= 2024-01-01
    - {{"publishedTimestamp": {{"$gte": 1735689600, "$lt": 1767225600}}}} for year 2025
    - Convert all dates to Unix timestamps (seconds since epoch)
 3. For single tags: use {{"tags": "#HashTag"}}
-4. For multiple tags: use {{"tags": {{"$in": ["#Tag1", "#Tag2"]}}}}
-5. For multiple players: use {{"tags": {{"$or": ["#Player1", "#Player2"]}}}}
+4. For OR logic (posts about X and Y): use {{"tags": {{"$in": ["#Tag1", "#Tag2"]}}}}
+5. For AND logic (posts containing both): use {{"$and": [{{"tags": "#Tag1"}}, {{"tags": "#Tag2"}}]}}
 6. Return ONLY valid JSON, no explanations
 7. Use current year 2025 for "this year", 2024 for "last year"
+8. IMPORTANT: Return ONE single JSON object, not multiple separate objects
 
 REAL EXAMPLES based on actual data:
 
@@ -162,13 +170,22 @@ Filter: {{"publishedTimestamp": {{"$gte": 1748736000, "$lt": 1751328000}}}}
 Query: "articles from previous 15 days"
 Filter: {{"publishedTimestamp": {{"$gte": 1750636800, "$lt": 1751932800}}}}
 
-Query: "posts about Rohit Sharma and Shubman Gill"
-Filter: {{"tags": {{"$or": ["#RohitSharma", "#ShubmanGill"]}}}}
+Query: "posts about Rohit Sharma and Shubman Gill" (OR logic - posts about either)
+Filter: {{"tags": {{"$in": ["#RohitSharma", "#ShubmanGill"]}}}}
+
+Query: "posts containing both Rohit Sharma and Shubman Gill" (AND logic - must have both)
+Filter: {{"$and": [{{"tags": "#RohitSharma"}}, {{"tags": "#ShubmanGill"}}]}}
+
+Query: "posts related to Rohit Sharma, Shubman Gill" (OR logic - posts about any)
+Filter: {{"tags": {{"$in": ["#RohitSharma", "#ShubmanGill"]}}}}
+
+Query: "posts with Rohit Sharma and also Shubman Gill" (AND logic - must have both)
+Filter: {{"$and": [{{"tags": "#RohitSharma"}}, {{"tags": "#ShubmanGill"}}]}}
 
 Query: "IPL articles by Mary Poppins"
 Filter: {{"author": "Mary Poppins", "tags": "#IPL2025"}}
 
-Query: "articles about cricket or football"
+Query: "articles about cricket or football" (explicit OR)
 Filter: {{"tags": {{"$in": ["#Cricket", "#Football"]}}}}
 
 Query: "posts not by Jane Doe"
@@ -183,13 +200,25 @@ Filter: {{"$and": [{{"author": "Jane Doe"}}, {{"tags": "#Cricket"}}]}}
 Query: "articles by Alice Zhang from last year about machine learning"
 Filter: {{"$and": [{{"author": "Alice Zhang"}}, {{"publishedTimestamp": {{"$gte": 1704067200, "$lt": 1735689600}}}}, {{"tags": "#MachineLearning"}}]}}
 
-IMPORTANT:
-- For tag searches, use individual hashtags (like "#RohitSharma") NOT exact string combinations
-- Use $in for multiple tag options with OR logic
-- Use $or for different field conditions
-- Use $and for combining multiple requirements
+BOOLEAN LOGIC DECISION TREE:
+1. Look for explicit keywords:
+   - "containing both", "with both", "having both", "includes both" → AND logic
+   - "about X and Y", "related to X, Y", "posts on X and Y" → OR logic (default)
+   - "or", "either" → OR logic (explicit)
 
-IMPORTANT:
+2. Context clues:
+   - Casual language ("posts about X and Y") → OR logic
+   - Specific requirements ("posts containing both X and Y") → AND logic
+   - Lists ("posts about X, Y, Z") → OR logic
+
+IMPORTANT TECHNICAL RULES:
+- For tag searches, use individual hashtags (like "#RohitSharma") NOT exact string combinations
+- Use $in for multiple tag options with OR logic: {{"tags": {{"$in": ["#Tag1", "#Tag2"]}}}}
+- Use $and for requiring multiple tags: {{"$and": [{{"tags": "#Tag1"}}, {{"tags": "#Tag2"}}]}}
+- Use $or for different field conditions
+- Use $and for combining multiple requirements across different fields
+
+DATE HANDLING:
 - Always use FULL month/year ranges, not partial ranges
 - For "May 2025" use full month: 1746057600 to 1748736000
 - For "June 2025" use full month: 1748736000 to 1751328000
@@ -280,8 +309,34 @@ JSON filter:"""
                 parsed = json.loads(json_str)
                 return self._normalize_filter_format(parsed)
 
-            # Method 3: Try to find multiple JSON objects
-            json_objects = re.findall(r'\{[^{}]*\}', response_text)
+            # Method 3: Try to find and combine multiple JSON objects
+            # Look for all JSON-like objects in the response
+            json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+            json_objects = []
+
+            # Find all potential JSON objects
+            for match in re.finditer(r'\{[^}]*\}', response_text):
+                json_objects.append(match.group())
+
+            if len(json_objects) >= 2:
+                # Try to combine multiple JSON objects into one
+                combined_filter = {}
+                valid_objects = 0
+
+                for json_obj in json_objects:
+                    try:
+                        parsed = json.loads(json_obj)
+                        if parsed:
+                            combined_filter.update(parsed)
+                            valid_objects += 1
+                    except:
+                        continue
+
+                if valid_objects >= 2 and combined_filter:
+                    print(f"🔧 Combined {valid_objects} JSON objects into single filter")
+                    return self._normalize_filter_format(combined_filter)
+
+            # Method 4: Single JSON object fallback
             for json_obj in json_objects:
                 try:
                     parsed = json.loads(json_obj)
@@ -309,8 +364,12 @@ JSON filter:"""
                 author = query_str.replace("author:", "").strip()
                 return {"author": author}
 
-        # Preserve OR logic and other complex structures
-        # The filter should already be in the correct format from the LLM
+        # Normalize $or to $in for tags (they're functionally equivalent for our use case)
+        if "tags" in parsed_filter and isinstance(parsed_filter["tags"], dict):
+            if "$or" in parsed_filter["tags"]:
+                parsed_filter["tags"]["$in"] = parsed_filter["tags"].pop("$or")
+
+        # Preserve other complex structures
         return parsed_filter
 
     def _rule_based_extraction(self, query: str) -> Dict[str, Any]:
@@ -325,7 +384,7 @@ JSON filter:"""
                 filter_dict["author"] = author
                 break
 
-        # Extract individual player tags and build proper search patterns
+        # Extract individual player tags and determine boolean logic
         # Map player names to their hashtag equivalents
         player_tags = []
 
@@ -339,10 +398,23 @@ JSON filter:"""
         if "shikhar dhawan" in query_lower or "shikhar" in query_lower:
             player_tags.append("#ShikharDhawan")
 
-        # If multiple players found, create OR condition for tags
+        # Determine boolean logic based on query phrasing
         if len(player_tags) > 1:
-            # For multiple players, we want articles that contain ANY of these players
-            filter_dict["tags"] = {"$or": player_tags}
+            # Check for AND logic indicators
+            and_indicators = [
+                "containing both", "with both", "having both", "includes both",
+                "posts containing both", "articles containing both",
+                "posts with both", "articles with both"
+            ]
+
+            use_and_logic = any(indicator in query_lower for indicator in and_indicators)
+
+            if use_and_logic:
+                # AND logic: posts must contain ALL these tags
+                filter_dict = {"$and": [{"tags": tag} for tag in player_tags]}
+            else:
+                # OR logic (default): posts about ANY of these players
+                filter_dict["tags"] = {"$in": player_tags}
         elif len(player_tags) == 1:
             # Single player - search for articles containing this tag
             filter_dict["tags"] = player_tags[0]
@@ -516,10 +588,14 @@ def test_agent():
     """Test the agent with real queries."""
     agent = SimpleNLAgent()
 
-    # Test with real data-based queries
+    # Test with real data-based queries including boolean logic
     test_queries = [
         "articles by Jane Doe",
         "posts about Rohit Sharma",
+        "posts about Rohit Sharma and Shubman Gill",  # Should be OR logic
+        "posts containing both Rohit Sharma and Shubman Gill",  # Should be AND logic
+        "posts related to Rohit Sharma, Shubman Gill",  # Should be OR logic
+        "posts with both Rohit Sharma and Shubman Gill",  # Should be AND logic
         "IPL articles from May 2025",
         "anything by Mary Poppins about cricket",
         "Shubman Gill articles from this year"

@@ -15,8 +15,8 @@ import os
 import logging
 import time
 from datetime import datetime
-from simple_agent import SimpleNLAgent
-from simple_pinecone import SimplePineconeClient
+from src.agent import SimpleNLAgent
+from src.pinecone_client import SimplePineconeClient
 
 # Configure enhanced logging
 logging.basicConfig(

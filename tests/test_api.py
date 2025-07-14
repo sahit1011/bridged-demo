@@ -11,7 +11,7 @@ import os
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.api.main import app
+from apps.fastapi_app import app
 
 client = TestClient(app)
 

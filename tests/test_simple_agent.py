@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 # Add the root directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from simple_agent import SimpleNLAgent
+from src.agent import SimpleNLAgent
 
 
 class TestSimpleNLAgent:

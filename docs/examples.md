@@ -25,17 +25,50 @@ Expected Filter: {"tags": "#MumbaiIndians"}
 Expected Results: 3 articles
 ```
 
-### **Multiple Player Searches (OR Logic)**
+### **Boolean Logic: OR vs AND**
+
+#### **OR Logic (Default - Posts about ANY of these)**
 ```
 Query: "posts about Rohit Sharma and Shubman Gill"
-Expected Filter: {"tags": {"$or": ["#RohitSharma", "#ShubmanGill"]}}
-Expected Results: 3 articles (all containing either player)
+Expected Filter: {"tags": {"$in": ["#RohitSharma", "#ShubmanGill"]}}
+Expected Results: 3 articles (containing either player)
+Logic: Casual language defaults to OR
+```
+
+```
+Query: "posts related to Rohit Sharma, Shubman Gill"
+Expected Filter: {"tags": {"$in": ["#RohitSharma", "#ShubmanGill"]}}
+Expected Results: 3 articles (containing either player)
+Logic: Comma-separated lists use OR
 ```
 
 ```
 Query: "articles about cricket or football"
 Expected Filter: {"tags": {"$in": ["#Cricket", "#Football"]}}
 Expected Results: Multiple articles with sports content
+Logic: Explicit OR keyword
+```
+
+#### **AND Logic (Explicit - Posts containing BOTH)**
+```
+Query: "posts containing both Rohit Sharma and Shubman Gill"
+Expected Filter: {"$and": [{"tags": "#RohitSharma"}, {"tags": "#ShubmanGill"}]}
+Expected Results: Articles that mention both players
+Logic: "containing both" triggers AND
+```
+
+```
+Query: "posts with both Rohit Sharma and Shubman Gill"
+Expected Filter: {"$and": [{"tags": "#RohitSharma"}, {"tags": "#ShubmanGill"}]}
+Expected Results: Articles that mention both players
+Logic: "with both" triggers AND
+```
+
+```
+Query: "articles having both Rohit Sharma and Shubman Gill"
+Expected Filter: {"$and": [{"tags": "#RohitSharma"}, {"tags": "#ShubmanGill"}]}
+Expected Results: Articles that mention both players
+Logic: "having both" triggers AND
 ```
 
 ## 👤 Author-Based Queries

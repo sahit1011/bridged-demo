@@ -22,4 +22,4 @@ echo "📚 API docs at: http://localhost:8000/docs"
 echo "🔍 Health check at: http://localhost:8000/health"
 echo ""
 
-poetry run python fastapi_app.py
+poetry run python apps/fastapi_app.py

@@ -24,6 +24,9 @@ if not exist "%UV_PATH%" (
     echo ✅ uv found at: %UV_PATH%
 )
 
+REM Change to project root directory
+cd /d "%~dp0\.."
+
 REM Create virtual environment if it doesn't exist
 if not exist "venv-uv" (
     echo 📦 Creating virtual environment with uv...
@@ -41,4 +44,6 @@ echo 📚 API docs at: http://localhost:8000/docs
 echo 🔍 Health check at: http://localhost:8000/health
 echo.
 
-venv-uv\Scripts\python.exe fastapi_app.py
+REM Set PYTHONPATH and run the app
+set PYTHONPATH=.
+venv-uv\Scripts\python.exe apps/fastapi_app.py

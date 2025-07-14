@@ -103,8 +103,12 @@ PINECONE_INDEX_NAME=bridged-demo-articles
 # Activate virtual environment first
 venv\Scripts\activate  # On Windows
 
-# Start the FastAPI server
-python fastapi_app.py
+# Set PYTHONPATH and start the FastAPI server
+set PYTHONPATH=. && python apps/fastapi_app.py
+
+# Alternative: Use scripts (handles PYTHONPATH automatically)
+scripts\run-with-uv.bat      # Using uv
+scripts\run-with-poetry.bat  # Using poetry
 ```
 
 #### Simple Frontend Demo
@@ -112,8 +116,17 @@ python fastapi_app.py
 # Activate virtual environment first
 venv\Scripts\activate  # On Windows
 
-# Run the simple frontend
-python simple_frontend.py
+# Set PYTHONPATH and run the frontend
+set PYTHONPATH=. && python apps/frontend.py
+```
+
+#### Comprehensive Demo (For Testing)
+```bash
+# Activate virtual environment first
+venv\Scripts\activate  # On Windows
+
+# Set PYTHONPATH and run comprehensive demo
+set PYTHONPATH=. && python test_comprehensive_demo.py
 ```
 
 The FastAPI server will be available at `http://localhost:8000`
@@ -126,7 +139,7 @@ Once the server is running, visit:
 
 ## 🔧 Core Components
 
-### 1. Simple Agent (`simple_agent.py`)
+### 1. NLP Agent (`src/agent.py`)
 
 A hybrid NLP pipeline that:
 - **LLM Processing**: Uses 7+ free-tier models from OpenRouter with sequential fallback
@@ -134,7 +147,7 @@ A hybrid NLP pipeline that:
 - **Date Processing**: Unix timestamp conversion for Pinecone compatibility
 - **Filter Generation**: Converts to Pinecone-compatible JSON filters
 
-### 2. Pinecone Client (`simple_pinecone.py`)
+### 2. Pinecone Client (`src/pinecone_client.py`)
 
 Handles vector database operations:
 - **Index Connection**: Manages Pinecone index connections
@@ -142,7 +155,7 @@ Handles vector database operations:
 - **Embedding Fallback**: Sentence Transformers when OpenAI quota exceeded
 - **Filter Conversion**: Handles tag filtering and date range queries
 
-### 3. FastAPI Application (`fastapi_app.py`)
+### 3. FastAPI Application (`apps/fastapi_app.py`)
 
 Production-ready API server:
 - **RESTful Endpoints**: `/query` for natural language processing
@@ -150,12 +163,19 @@ Production-ready API server:
 - **Error Handling**: Comprehensive error responses
 - **Logging**: Detailed request/response logging
 
-### 4. Frontend Demo (`simple_frontend.py`)
+### 4. Frontend Demo (`apps/frontend.py`)
 
 Interactive web interface:
 - **Real-time Query Testing**: Live query processing
 - **Results Display**: Formatted search results with metadata
 - **Error Feedback**: User-friendly error messages
+
+### 5. Configuration (`config/settings.py`)
+
+Centralized configuration management:
+- **Environment Variables**: API keys and settings
+- **LLM Models**: Fallback model configuration
+- **Application Settings**: Server and search parameters
 
 ## 🔧 Usage Examples
 
@@ -231,21 +251,29 @@ Interactive web interface:
 ## 📁 Project Structure
 
 ```
-bridged-demo-assignment/
-├── simple_agent.py      # Main NLP agent with LLM + rule-based processing
-├── simple_pinecone.py   # Pinecone client with embedding fallback
-├── fastapi_app.py       # Production FastAPI server
-├── simple_frontend.py   # Interactive web demo
-├── simple_api.py        # Simple API wrapper
-├── frontend_demo.py     # Alternative frontend
+bridged-demo/
+├── src/                 # Core source code
+│   ├── __init__.py
+│   ├── agent.py         # Main NLP agent with LLM + rule-based processing
+│   ├── pinecone_client.py # Pinecone client with embedding fallback
+│   └── api.py           # Simple API wrapper
+├── apps/                # Application entry points
+│   ├── __init__.py
+│   ├── fastapi_app.py   # Production FastAPI server
+│   ├── frontend.py      # Interactive web demo
+│   └── demo.py          # Alternative frontend
+├── config/              # Configuration management
+│   ├── __init__.py
+│   └── settings.py      # Application settings and environment variables
 ├── data/                # Sample data and Pinecone exports
 │   ├── pinecone_data_unified_date.json
 │   ├── processed_data_unified.csv
 │   └── sample_data.csv
 ├── tests/               # Test suite
+│   ├── __init__.py
 │   ├── test_simple_agent.py
 │   └── test_api.py
-├── documentation/       # Comprehensive documentation
+├── docs/                # Comprehensive documentation
 │   ├── README.md
 │   ├── examples.md
 │   ├── implementation-details.md
@@ -377,6 +405,63 @@ scripts\run-with-poetry.bat
 - **Date extraction accuracy**: 100% (enhanced with Unix timestamps)
 - **LLM fallback models**: 7+ free-tier models from OpenRouter
 - **Embedding fallback**: Sentence Transformers when OpenAI quota exceeded
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### ModuleNotFoundError: No module named 'src'
+**Problem**: When running individual app files, Python can't find the src module.
+
+**Solution**: Always set PYTHONPATH before running individual files:
+```bash
+# Windows (PowerShell)
+$env:PYTHONPATH = "."
+python apps/fastapi_app.py
+
+# Windows (Command Prompt)
+set PYTHONPATH=.
+python apps/fastapi_app.py
+
+# Linux/Mac
+export PYTHONPATH=.
+python apps/fastapi_app.py
+```
+
+**Alternative**: Use the provided scripts that handle PYTHONPATH automatically:
+```bash
+scripts\run-with-uv.bat      # Using uv
+scripts\run-with-poetry.bat  # Using poetry
+```
+
+#### Lock File Out of Date
+**Problem**: `poetry.lock` or `uv.lock` needs updating after dependency changes.
+
+**Solution**: Update the lock files:
+```bash
+# For Poetry
+poetry lock
+
+# For UV
+uv lock
+
+# Check if UV lock is current
+uv lock --check
+```
+
+#### Virtual Environment Issues
+**Problem**: Dependencies not found or import errors.
+
+**Solution**: Ensure virtual environment is activated:
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac
+source venv/bin/activate
+
+# Verify activation (should show (venv) in prompt)
+```
 
 ## 🤝 Contributing
 

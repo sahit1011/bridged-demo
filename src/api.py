@@ -10,8 +10,8 @@ from typing import Dict, Any, List, Optional
 import uvicorn
 import json
 
-from simple_agent import SimpleNLAgent
-from simple_pinecone import SimplePineconeClient
+from .agent import SimpleNLAgent
+from .pinecone_client import SimplePineconeClient
 
 # Initialize FastAPI app
 app = FastAPI(

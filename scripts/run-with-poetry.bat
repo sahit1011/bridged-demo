@@ -21,6 +21,9 @@ if not exist "%POETRY_PATH%" (
     echo ✅ Poetry installed successfully!
 )
 
+REM Change to project root directory
+cd /d "%~dp0\.."
+
 REM Install dependencies with Poetry
 echo 📦 Installing dependencies with Poetry...
 "%POETRY_PATH%" install --no-root
@@ -32,4 +35,4 @@ echo 📚 API docs at: http://localhost:8000/docs
 echo 🔍 Health check at: http://localhost:8000/health
 echo.
 
-"%POETRY_PATH%" run python fastapi_app.py
+"%POETRY_PATH%" run python apps/fastapi_app.py
