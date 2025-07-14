@@ -1,0 +1,41 @@
+# Core API Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.20
+
+# AI/LLM Providers
+openai>=1.6.1
+anthropic>=0.7.0
+
+# Vector Database (Updated to avoid deprecated plugins)
+pinecone>=7.0.0
+
+# Data Processing
+pandas==2.1.0
+pydantic==2.5.0
+
+# Utilities
+python-dotenv==1.0.0
+httpx==0.25.0
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Frontend Testing
+flask
+fastapi
+uvicorn[standard]>=0.24.0
+
+# Embedding Fallbacks (with compatible numpy)
+numpy>=1.24.0,<2.0.0
+sentence-transformers>=2.2.2
+torch>=2.0.0
+
+# Development Dependencies (install with: pip install -r requirements-dev.txt)
+# pytest==7.4.0
+# pytest-asyncio==0.21.0
+# black==23.0.0
+# flake8==6.0.0
+# mypy==1.7.0
+# isort==5.12.0
+# pytest-cov==4.1.0
+# pytest-mock==3.12.0
